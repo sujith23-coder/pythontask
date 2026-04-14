@@ -1,0 +1,214 @@
+{
+  "info": {
+    "_postman_id": "f8a7b7e9-7f5c-4ee0-9f98-3d96e2f4e891",
+    "name": "Django Auth Profile APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for signup, login, logout, profile fetch/update, change password, and profile picture upload APIs."
+  },
+  "item": [
+    {
+      "name": "Signup",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"{{email}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/signup/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "signup",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/login/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "login",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/profile/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profile",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Profile",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{updated_username}}\",\n  \"email\": \"{{updated_email}}\",\n  \"additional_details\": \"Updated from Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/profile/update/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profile",
+            "update",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Change Password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"old_password\": \"{{password}}\",\n  \"new_password\": \"{{new_password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/change-password/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "change-password",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Upload Profile Photo",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "profile_picture",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/profile/photo/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "profile",
+            "photo",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/logout/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "logout",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "username",
+      "value": "john"
+    },
+    {
+      "key": "password",
+      "value": "12345"
+    },
+    {
+      "key": "new_password",
+      "value": "123456"
+    },
+    {
+      "key": "email",
+      "value": "john@example.com"
+    },
+    {
+      "key": "updated_username",
+      "value": "john_updated"
+    },
+    {
+      "key": "updated_email",
+      "value": "john_updated@example.com"
+    }
+  ]
+}
