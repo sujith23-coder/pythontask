@@ -1,0 +1,357 @@
+{
+  "info": {
+    "_postman_id": "c57bfce8-7392-4324-8607-7d7d3f8239ce",
+    "name": "Django Blog and Image Gallery APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Blog Post and Image Gallery APIs."
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/login/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "login",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Post",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"{{post_title}}\",\n  \"content\": \"{{post_content}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/posts/create/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "posts",
+            "create",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Posts",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "posts",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "View Post",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "posts",
+            "{{post_id}}",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Post",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"{{updated_post_title}}\",\n  \"content\": \"{{updated_post_content}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}/update/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "posts",
+            "{{post_id}}",
+            "update",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Post",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}/delete/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "posts",
+            "{{post_id}}",
+            "delete",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Upload Image",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "title",
+              "value": "{{image_title}}",
+              "type": "text"
+            },
+            {
+              "key": "post",
+              "value": "{{post_id}}",
+              "type": "text"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/gallery/upload/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "gallery",
+            "upload",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Images (Page 1)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/gallery/?page=1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "gallery",
+            ""
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "View Image",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/gallery/{{image_id}}/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "gallery",
+            "{{image_id}}",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Image",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "title",
+              "value": "{{updated_image_title}}",
+              "type": "text"
+            },
+            {
+              "key": "post",
+              "value": "{{post_id}}",
+              "type": "text"
+            },
+            {
+              "key": "image",
+              "type": "file",
+              "src": ""
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/gallery/{{image_id}}/update/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "gallery",
+            "{{image_id}}",
+            "update",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Image",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/gallery/{{image_id}}/delete/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "gallery",
+            "{{image_id}}",
+            "delete",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/logout/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "logout",
+            ""
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "username",
+      "value": "john"
+    },
+    {
+      "key": "password",
+      "value": "12345"
+    },
+    {
+      "key": "post_id",
+      "value": "1"
+    },
+    {
+      "key": "image_id",
+      "value": "1"
+    },
+    {
+      "key": "post_title",
+      "value": "My first post"
+    },
+    {
+      "key": "post_content",
+      "value": "This is blog content."
+    },
+    {
+      "key": "updated_post_title",
+      "value": "Updated post title"
+    },
+    {
+      "key": "updated_post_content",
+      "value": "Updated blog content."
+    },
+    {
+      "key": "image_title",
+      "value": "Sample image"
+    },
+    {
+      "key": "updated_image_title",
+      "value": "Updated image title"
+    }
+  ]
+}

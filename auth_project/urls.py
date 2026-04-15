@@ -18,10 +18,25 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
+from rest_framework import permissions
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Auth Project APIs",
+        default_version="v1",
+        description="Authentication, blog, gallery, comments, and activity feed APIs.",
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
+    path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0), name='api_docs'),
+    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='api_redoc'),
 ]
 
 if settings.DEBUG:
