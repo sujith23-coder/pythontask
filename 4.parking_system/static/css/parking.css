@@ -1,0 +1,55 @@
+/* Parking Management System — layout aligned with assignment mockups */
+
+body {
+  min-height: 100vh;
+}
+
+.sidebar {
+  min-width: 240px;
+  max-width: 240px;
+  min-height: 100vh;
+  padding-top: 1rem;
+}
+
+.sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  border-radius: 0.25rem;
+  margin: 0.15rem 0.5rem;
+}
+
+.sidebar .nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar .nav-link.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.stat-card {
+  border-radius: 0.5rem;
+  color: #fff;
+  padding: 1.25rem;
+  min-height: 120px;
+}
+
+.login-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  min-height: 100vh;
+}
+
+.login-card {
+  max-width: 420px;
+  border-radius: 0.35rem;
+}
+
+.limit-badge {
+  font-size: 0.85rem;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

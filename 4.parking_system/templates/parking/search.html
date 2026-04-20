@@ -1,0 +1,52 @@
+{% extends "parking/base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<h4>Search</h4>
+<p class="text-muted">Search by <strong>vehicle number</strong> or <strong>receipt serial</strong> (last 30 days).</p>
+<form method="get" class="form-inline mb-4">
+  <div class="input-group input-group-lg w-100" style="max-width: 480px;">
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="e.g. CBN-2205 or PMS-000001">
+    <div class="input-group-append">
+      <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
+    </div>
+  </div>
+</form>
+<div class="table-responsive card shadow-sm">
+  <table class="table table-hover mb-0">
+    <thead class="thead-light">
+      <tr>
+        <th>#</th>
+        <th>Receipt</th>
+        <th>Vehicle Number</th>
+        <th>Type</th>
+        <th>Area</th>
+        <th>Charge / hr</th>
+        <th>Arrival Time</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in vehicles %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ v.receipt_serial }}</td>
+        <td>{{ v.vehicle_no }}</td>
+        <td>{{ v.vehicle_type }}</td>
+        <td>{{ v.parking_area_no }}</td>
+        <td>$ {{ v.parking_charge }}</td>
+        <td>{{ v.arrival_time|date:"Y-m-d H:i:s" }}</td>
+        <td>
+          {% if v.status == 'parked' %}
+            <span class="badge badge-primary">Parked</span>
+          {% else %}
+            <span class="badge badge-secondary">Leaved</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="text-center text-muted">{% if q %}No results.{% else %}Enter a search term.{% endif %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{
+  "info": {
+    "name": "Task 4 - Parking Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "CRUD for categories and vehicles. Use Basic Auth (staff user). Base URL: http://127.0.0.1:8000"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{username}}", "type": "string" },
+      { "key": "password", "value": "{{password}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/categories/"
+          }
+        },
+        {
+          "name": "Create category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parking_area_no\": \"5\",\n  \"vehicle_type\": \"Motorcycle\",\n  \"vehicle_limit\": 25,\n  \"parking_charge\": \"2.00\",\n  \"status\": \"activated\"\n}"
+            },
+            "url": "{{base_url}}/api/categories/"
+          }
+        },
+        {
+          "name": "Get category",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/categories/{{category_id}}/"
+          }
+        },
+        {
+          "name": "Update category (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parking_charge\": \"3.50\"\n}"
+            },
+            "url": "{{base_url}}/api/categories/{{category_id}}/"
+          }
+        },
+        {
+          "name": "Delete category",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/categories/{{category_id}}/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vehicles",
+      "item": [
+        {
+          "name": "List vehicles",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/vehicles/"
+          }
+        },
+        {
+          "name": "Search vehicles (?q=)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/vehicles/?q={{search_q}}"
+          }
+        },
+        {
+          "name": "Create vehicle (entry)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicle_no\": \"CBN-2205\",\n  \"category\": {{category_id}}\n}"
+            },
+            "url": "{{base_url}}/api/vehicles/"
+          }
+        },
+        {
+          "name": "Get vehicle",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/vehicles/{{vehicle_id}}/"
+          }
+        },
+        {
+          "name": "Update vehicle (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicle_no\": \"CBN-2205-updated\"\n}"
+            },
+            "url": "{{base_url}}/api/vehicles/{{vehicle_id}}/"
+          }
+        },
+        {
+          "name": "Depart vehicle",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{base_url}}/api/vehicles/{{vehicle_id}}/depart/"
+          }
+        },
+        {
+          "name": "Delete vehicle (admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/api/vehicles/{{vehicle_id}}/"
+          }
+        },
+        {
+          "name": "Error - create duplicate parked plate",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicle_no\": \"CBN-2205\",\n  \"category\": {{category_id}}\n}"
+            },
+            "url": "{{base_url}}/api/vehicles/"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "username", "value": "admin" },
+    { "key": "password", "value": "your-password" },
+    { "key": "category_id", "value": "1" },
+    { "key": "vehicle_id", "value": "1" },
+    { "key": "search_q", "value": "2205" }
+  ]
+}

@@ -1,0 +1,50 @@
+{% extends "parking/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h4 class="mb-4">Dashboard</h4>
+<div class="row">
+  <div class="col-md-4 mb-3">
+    <div class="stat-card bg-info shadow-sm">
+      <i class="fa fa-product-hunt fa-2x float-right opacity-50"></i>
+      <h3 class="mb-0">{{ stat_parked }}</h3>
+      <span>Vehicles Parked</span>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="stat-card bg-dark shadow-sm">
+      <i class="fa fa-car fa-2x float-right opacity-50"></i>
+      <h3 class="mb-0">{{ stat_leaved }}</h3>
+      <span>Departed Vehicles</span>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="stat-card bg-danger shadow-sm">
+      <i class="fa fa-cube fa-2x float-right opacity-50"></i>
+      <h3 class="mb-0">{{ stat_categories }}</h3>
+      <span>Active Categories</span>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="stat-card shadow-sm" style="background-color: #f0ad4e;">
+      <i class="fa fa-money fa-2x float-right opacity-50"></i>
+      <h3 class="mb-0">$ {{ stat_earnings }}</h3>
+      <span>Total Earnings</span>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="stat-card bg-secondary shadow-sm">
+      <i class="fa fa-database fa-2x float-right opacity-50"></i>
+      <h3 class="mb-0">{{ stat_records }}</h3>
+      <span>Total Records</span>
+    </div>
+  </div>
+  <div class="col-md-4 mb-3">
+    <div class="stat-card bg-primary shadow-sm">
+      <i class="fa fa-check-square fa-2x float-right opacity-50"></i>
+      <h3 class="mb-0">{{ stat_slots }}</h3>
+      <span>Total Parking Slots</span>
+    </div>
+  </div>
+</div>
+<p class="text-muted small mt-2">Slot total = sum of <strong>vehicle limits</strong> for all <strong>activated</strong> categories.</p>
+{% endblock %}

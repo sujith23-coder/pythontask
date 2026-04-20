@@ -1,0 +1,40 @@
+{% extends "parking/base.html" %}
+{% block title %}Account Setting{% endblock %}
+{% block content %}
+<h4><i class="fa fa-cog text-primary"></i> Change Your Password</h4>
+<div class="row mt-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors }}</div>{% endif %}
+          </div>
+          {% endfor %}
+          <button type="submit" class="btn btn-primary btn-block btn-lg">Change Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white"><strong>Optional notifications</strong></div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="custom-control custom-checkbox">
+            <input type="checkbox" class="custom-control-input" id="email_notifications" name="email_notifications"
+              {% if admin_profile.email_departure_notifications %}checked{% endif %}>
+            <label class="custom-control-label" for="email_notifications">Email me when a vehicle departs (console backend in dev)</label>
+          </div>
+          <button type="submit" name="save_notifications" value="1" class="btn btn-outline-primary mt-3">Save preference</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
