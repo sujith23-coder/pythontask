@@ -3,22 +3,25 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from .database import Base, engine
-from .routers import auth, email_router, posts
+from .django_bridge import init_django
+from .routers import auth, email_router, posts, subscription
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    init_django()
     yield
 
 
 app = FastAPI(
-    title="Blog Management API",
-    description="FastAPI blog with posts, comments, likes, JWT auth, and email notifications (Task 6).",
-    version="1.0.0",
+    title="Blog & Subscription API",
+    description="FastAPI blog (SQLAlchemy) + subscription/billing (Django ORM + ReportLab invoices). Task 6–7.",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
 app.include_router(auth.router)
 app.include_router(posts.router)
 app.include_router(email_router.router)
+app.include_router(subscription.router)

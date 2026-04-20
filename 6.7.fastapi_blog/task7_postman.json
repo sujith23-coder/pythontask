@@ -1,0 +1,53 @@
+{
+  "info": {
+    "name": "Task 7 - Subscription & Billing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "token", "value": "" },
+    { "key": "plan_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Login (after register)",
+      "request": {
+        "method": "POST",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            { "key": "username", "value": "subscriber" },
+            { "key": "password", "value": "password123" }
+          ]
+        },
+        "url": "{{base_url}}/auth/login"
+      }
+    },
+    {
+      "name": "Subscribe",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"plan_id\": {{plan_id}}\n}" },
+        "url": "{{base_url}}/subscribe/"
+      }
+    },
+    {
+      "name": "My active subscription",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "GET",
+        "url": "{{base_url}}/subscription/me"
+      }
+    },
+    {
+      "name": "Billing history",
+      "request": {
+        "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+        "method": "GET",
+        "url": "{{base_url}}/billing/history"
+      }
+    }
+  ]
+}

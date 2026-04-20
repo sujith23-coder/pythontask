@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -85,3 +86,37 @@ class EmailNotificationRequest(BaseModel):
     to_email: EmailStr
     subject: str = Field(..., min_length=1, max_length=200)
     body: str = Field(..., min_length=1)
+
+
+# --- Subscription & billing (Task 7) ---
+
+
+class SubscribeRequest(BaseModel):
+    plan_id: int = Field(..., ge=1)
+
+
+class SubscriptionPlanRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    price: Decimal
+    duration: int
+
+
+class BillingHistoryRead(BaseModel):
+    id: int
+    plan: SubscriptionPlanRead
+    start_date: datetime
+    end_date: datetime
+    invoice: str
+    transaction_id: str
+
+
+class SubscribeResponse(BaseModel):
+    message: str
+    billing: BillingHistoryRead
+
+
+class ActiveSubscriptionResponse(BaseModel):
+    billing: BillingHistoryRead
