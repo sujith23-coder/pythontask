@@ -1,0 +1,158 @@
+{
+  "info": {
+    "name": "Task 6 - Blog Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "token", "value": "" },
+    { "key": "token2", "value": "" },
+    { "key": "post_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register author",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"blog_author\",\n  \"email\": \"author@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Register reader",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"blog_reader\",\n  \"email\": \"reader@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Login author",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "blog_author" },
+                { "key": "password", "value": "password123" }
+              ]
+            },
+            "url": "{{base_url}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "Create post",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"My first post\",\n  \"content\": \"Hello from FastAPI blog.\"\n}"
+            },
+            "url": "{{base_url}}/posts/"
+          }
+        },
+        {
+          "name": "List posts (public)",
+          "request": { "method": "GET", "url": "{{base_url}}/posts/" }
+        },
+        {
+          "name": "Get post detail",
+          "request": { "method": "GET", "url": "{{base_url}}/posts/{{post_id}}" }
+        },
+        {
+          "name": "My posts",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "url": "{{base_url}}/posts/mine"
+          }
+        },
+        {
+          "name": "Update post (owner)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated title\"\n}" },
+            "url": "{{base_url}}/posts/{{post_id}}"
+          }
+        },
+        {
+          "name": "Delete post (owner)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "DELETE",
+            "url": "{{base_url}}/posts/{{post_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments & likes",
+      "item": [
+        {
+          "name": "Add comment",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token2}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"text\": \"Great post!\"\n}" },
+            "url": "{{base_url}}/posts/{{post_id}}/comments/"
+          }
+        },
+        {
+          "name": "List comments (public)",
+          "request": { "method": "GET", "url": "{{base_url}}/posts/{{post_id}}/comments/" }
+        },
+        {
+          "name": "Toggle like",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token2}}" }] },
+            "method": "POST",
+            "url": "{{base_url}}/posts/{{post_id}}/like/"
+          }
+        },
+        {
+          "name": "List likes",
+          "request": { "method": "GET", "url": "{{base_url}}/posts/{{post_id}}/likes/" }
+        }
+      ]
+    },
+    {
+      "name": "Email",
+      "item": [
+        {
+          "name": "Send notification (manual)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to_email\": \"author@example.com\",\n  \"subject\": \"Test\",\n  \"body\": \"Manual notification\"\n}"
+            },
+            "url": "{{base_url}}/email/send-notification/"
+          }
+        }
+      ]
+    }
+  ]
+}
