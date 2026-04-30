@@ -1,0 +1,145 @@
+{
+  "info": {
+    "name": "Task 8 - API Key & Usage Tracking",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "username", "value": "task8_user" },
+    { "key": "email", "value": "task8_user@example.com" },
+    { "key": "password", "value": "password123" },
+    { "key": "token", "value": "" },
+    { "key": "api_key", "value": "" },
+    { "key": "daily_limit", "value": "100" }
+  ],
+  "item": [
+    {
+      "name": "1) Auth setup",
+      "item": [
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Login user (save token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.access_token) {",
+                  "  pm.collectionVariables.set('token', data.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "{{username}}" },
+                { "key": "password", "value": "{{password}}" }
+              ]
+            },
+            "url": "{{base_url}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2) API key + usage",
+      "item": [
+        {
+          "name": "Generate / regenerate API key (save key)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.api_key) {",
+                  "  pm.collectionVariables.set('api_key', data.api_key);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "POST",
+            "url": "{{base_url}}/generate-key/"
+          }
+        },
+        {
+          "name": "Protected API call (counts usage)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{api_key}}" }],
+            "url": "{{base_url}}/posts/mine"
+          }
+        },
+        {
+          "name": "Read usage summary",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "url": "{{base_url}}/usage/"
+          }
+        },
+        {
+          "name": "Protected API call without X-API-Key (expect 401)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "url": "{{base_url}}/posts/mine"
+          }
+        },
+        {
+          "name": "Protected API call with wrong key (expect 401)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "INVALID_KEY_FOR_TEST" }],
+            "url": "{{base_url}}/posts/mine"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3) Rate-limit behavior (manual)",
+      "item": [
+        {
+          "name": "Repeated protected call (run daily_limit+1 times in Runner)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{api_key}}" }],
+            "url": "{{base_url}}/posts/mine"
+          }
+        },
+        {
+          "name": "Read usage after limit test",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "url": "{{base_url}}/usage/"
+          }
+        }
+      ]
+    }
+  ]
+}

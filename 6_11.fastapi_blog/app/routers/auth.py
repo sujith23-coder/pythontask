@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from .. import schemas
 from ..auth import create_access_token, hash_password, verify_password
 from ..database import get_db
-from ..models import User
+from ..models import Role, User, UserRole
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -24,6 +24,21 @@ def register(data: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    # Bootstrap roles: if no admin exists yet, promote this user to Admin; otherwise default to Viewer.
+    admin_exists = (
+        db.query(UserRole)
+        .join(Role, Role.id == UserRole.role_id)
+        .filter(Role.name == "Admin")
+        .first()
+        is not None
+    )
+    role_name = "Viewer" if admin_exists else "Admin"
+    role = db.query(Role).filter(Role.name == role_name).first()
+    if role and not db.query(UserRole).filter(UserRole.user_id == user.id, UserRole.role_id == role.id).first():
+        db.add(UserRole(user_id=user.id, role_id=role.id))
+        db.commit()
+
     return user
 
 

@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from .database import get_db
-from .models import User
+from .models import Role, User, UserRole
 
 SECRET_KEY = "change-me-task6-blog-secret-key"
 ALGORITHM = "HS256"
@@ -63,3 +63,28 @@ def get_current_user(
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
+
+
+def get_user_roles(user_id: int, db: Session) -> list[str]:
+    return [
+        row.name
+        for row in db.query(Role.name)
+        .join(UserRole, UserRole.role_id == Role.id)
+        .filter(UserRole.user_id == user_id)
+        .all()
+    ]
+
+
+def require_roles(*allowed_roles: str):
+    allowed = {r.lower() for r in allowed_roles}
+
+    def _checker(current: User = Depends(get_current_user), db: Session = Depends(get_db)) -> User:
+        roles = {r.lower() for r in get_user_roles(current.id, db)}
+        if not roles.intersection(allowed):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Requires one of roles: {', '.join(sorted(allowed_roles))}",
+            )
+        return current
+
+    return _checker

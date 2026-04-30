@@ -7,7 +7,6 @@ from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -116,7 +115,6 @@ def _resolve_activity_target_owner(target_type, target_id):
     return None
 
 
-@csrf_exempt
 @require_POST
 def signup_view(request):
     data = _parse_json_body(request)
@@ -138,7 +136,6 @@ def signup_view(request):
     return JsonResponse({"message": "User created successfully"}, status=201)
 
 
-@csrf_exempt
 @require_POST
 def login_view(request):
     data = _parse_json_body(request)
@@ -159,7 +156,6 @@ def login_view(request):
     return JsonResponse({"message": "Login successful"})
 
 
-@csrf_exempt
 @require_POST
 def logout_view(request):
     logout(request)
@@ -182,7 +178,6 @@ def profile_view(request):
     )
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_POST
 def update_profile_view(request):
@@ -213,7 +208,6 @@ def update_profile_view(request):
     return JsonResponse({"message": "Profile updated successfully"})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_POST
 def change_password_view(request):
@@ -236,7 +230,6 @@ def change_password_view(request):
     return JsonResponse({"message": "Password changed successfully"})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_POST
 def upload_profile_photo_view(request):
@@ -251,7 +244,6 @@ def upload_profile_photo_view(request):
     return JsonResponse({"message": "Profile picture updated successfully"})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_POST
 def create_post_view(request):
@@ -285,7 +277,6 @@ def view_post_view(request, post_id):
     return JsonResponse({"post": _post_payload(post)})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_http_methods(["POST", "PUT", "PATCH"])
 def update_post_view(request, post_id):
@@ -323,7 +314,6 @@ def update_post_view(request, post_id):
     return JsonResponse({"message": "Post updated successfully", "post": _post_payload(post)})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_http_methods(["POST", "DELETE"])
 def delete_post_view(request, post_id):
@@ -339,7 +329,6 @@ def delete_post_view(request, post_id):
     return JsonResponse({"message": "Post deleted successfully"})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_POST
 def upload_image_view(request):
@@ -396,7 +385,6 @@ def view_image_view(request, image_id):
     return JsonResponse({"image": _image_payload(image)})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_http_methods(["POST", "PUT", "PATCH"])
 def update_image_view(request, image_id):
@@ -443,7 +431,6 @@ def update_image_view(request, image_id):
     return JsonResponse({"message": "Image updated successfully", "image": _image_payload(image)})
 
 
-@csrf_exempt
 @require_authenticated_user
 @require_http_methods(["POST", "DELETE"])
 def delete_image_view(request, image_id):
@@ -492,7 +479,6 @@ notification_toggle_schema = openapi.Schema(
 )
 
 
-@csrf_exempt
 @swagger_auto_schema(method="post", request_body=comment_request_schema, operation_summary="Create a comment")
 @api_view(["POST"])
 def create_comment_view(request):
@@ -502,13 +488,21 @@ def create_comment_view(request):
     content = str(request.data.get("content", "")).strip()
     post_id = request.data.get("post")
 
-    if not content or not post_id:
+    if not content or post_id is None or post_id == "":
         return JsonResponse({"error": "content and post are required"}, status=400)
 
     try:
-        post = Post.objects.select_related("author").get(pk=post_id)
+        post_id_int = int(post_id)
+    except (TypeError, ValueError):
+        return JsonResponse({"error": "post must be an integer primary key", "post": post_id}, status=400)
+
+    try:
+        post = Post.objects.select_related("author").get(pk=post_id_int)
     except Post.DoesNotExist:
-        return JsonResponse({"error": "Post not found"}, status=404)
+        return JsonResponse(
+            {"error": "Post not found", "post": post_id_int, "hint": "Use GET /posts/ or create one via POST /posts/create/."},
+            status=404,
+        )
 
     comment = Comment.objects.create(content=content, author=request.user, post=post)
     activity = Activity.objects.create(
@@ -611,7 +605,6 @@ def search_comments_view(request):
     )
 
 
-@csrf_exempt
 @swagger_auto_schema(method="post", request_body=comment_update_schema, operation_summary="Update own comment")
 @api_view(["POST", "PUT", "PATCH"])
 def update_comment_view(request, comment_id):
@@ -639,7 +632,6 @@ def update_comment_view(request, comment_id):
     return JsonResponse({"message": "Comment updated successfully", "comment": _comment_payload(comment)})
 
 
-@csrf_exempt
 @swagger_auto_schema(method="delete", operation_summary="Delete own comment")
 @swagger_auto_schema(method="post", operation_summary="Delete own comment")
 @api_view(["POST", "DELETE"])
@@ -659,7 +651,6 @@ def delete_comment_view(request, comment_id):
     return JsonResponse({"message": "Comment deleted successfully"})
 
 
-@csrf_exempt
 @swagger_auto_schema(method="post", request_body=activity_request_schema, operation_summary="Create activity event")
 @api_view(["POST"])
 def create_activity_view(request):
@@ -739,7 +730,6 @@ def list_activities_view(request):
     )
 
 
-@csrf_exempt
 @swagger_auto_schema(method="post", request_body=notification_toggle_schema, operation_summary="Toggle email notifications")
 @api_view(["POST"])
 def toggle_notification_view(request):

@@ -4,6 +4,9 @@ Combined **FastAPI** app:
 
 1. **Blog (SQLAlchemy)** — posts, comments, likes, JWT, `BackgroundTasks` email (Task 6).
 2. **Subscription & billing (Django ORM)** — plans, billing history, ReportLab PDF invoices (Task 7).
+3. **API key + usage tracking (Django ORM + FastAPI middleware)** — per-user API keys, per-endpoint counters, daily limits (Task 8).
+4. **Admin analytics dashboard (FastAPI + HTML)** — summary metrics, daily usage analytics, lightweight frontend (Task 10).
+5. **Full-stack integration (Task 11)** — RBAC, real-time chat (WebSocket), admin analytics protection.
 
 Both use the **same SQLite file**: `blog.db` at the project root.
 
@@ -69,6 +72,84 @@ Django models live in `django_billing/subscription/models.py`:
 
 **Seed plans:** migration `0002_seed_plans` — Basic (299 / 30d), Pro (799 / 30d), Premium (1499 / 90d).
 
+## API key & usage tracking (Task 8)
+
+Django models in `django_billing/subscription/models.py`:
+
+- **APIKey** — `user`, unique `key`, `created_at`
+- **APIUsage** — `user`, `endpoint`, `total_requests`, `last_used`, `usage_date`
+
+| Method | Path | Auth |
+|--------|------|------|
+| POST | `/generate-key/` | JWT |
+| GET | `/usage/` | JWT |
+
+Middleware behavior:
+
+- For JWT-authenticated requests (except `/auth/*`, `/generate-key/`, `/usage/`, docs endpoints), `X-API-Key` is required.
+- API key must belong to the same authenticated user.
+- Requests are auto-counted in `APIUsage`.
+- Daily rate limits by active plan: `Basic=100`, `Pro=500`, fallback/default=`100`. Exceeded limit returns **HTTP 429**.
+
+## Admin analytics dashboard (Task 10)
+
+Endpoints:
+
+| Method | Path | Auth |
+|--------|------|------|
+| GET | `/admin/analytics/summary` | JWT + `X-API-Key` |
+| GET | `/admin/analytics/usage-daily` | JWT + `X-API-Key` |
+| GET | `/admin/analytics/dashboard` | No auth (HTML page; API calls still require JWT + key) |
+
+`/admin/analytics/summary` returns:
+
+- `total_users`
+- `total_requests`
+- `top_users` (top 5 by API requests)
+- `plan_distribution` (active plan counts)
+
+`/admin/analytics/usage-daily` returns daily request totals for the last 7 days.
+
+Frontend dashboard:
+
+- Cards for totals and plan split
+- Top users list
+- Bar chart (Chart.js CDN) for last 7 days usage
+- Input fields for Bearer token and API key to load data
+
+## Full Stack System (Task 11)
+
+### RBAC
+
+Roles auto-seeded at startup: `Admin`, `Editor`, `Viewer`.
+
+- `POST /roles/assign/` — Admin only
+- `GET /users/permissions/` — current user role + permissions
+- `DELETE /users/{id}/` — Admin only
+
+Bootstrap behavior:
+- First registered user gets `Admin`
+- Later users default to `Viewer`
+
+### Real-time chat
+
+- WebSocket endpoint: `ws://127.0.0.1:8000/chat/?token=<JWT>`
+- Public broadcast messages: send plain text
+- Optional private WS message format: `@<user_id> <message>`
+- REST helpers:
+  - `GET /chat/history`
+  - `POST /chat/private`
+  - `GET /chat/private/history/{other_user_id}`
+
+Chat message persistence:
+- `chat_messages` table (public chat history)
+- `private_messages` table (1:1 history)
+
+### Analytics security integration
+
+- `/admin/analytics/*` and `/analytics/*` endpoints now require Admin role.
+- Existing API-key middleware still applies to authenticated HTTP requests.
+
 ## Email
 
 Blog comments/likes and subscription confirmation use `BackgroundTasks` + `app/services/email.py`.
@@ -81,10 +162,15 @@ Blog comments/likes and subscription confirmation use `BackgroundTasks` + `app/s
 ```bash
 python scripts/smoke_test.py
 python scripts/task7_billing_smoke.py
+python scripts/task10_analytics_smoke.py
+python scripts/task11_fullstack_smoke.py
 ```
 
 - `task6_postman.json` — blog flows  
 - `task7_postman.json` — subscribe / subscription / billing  
+- `task8_postman.json` — API key generation / usage tracking / rate limit checks
+- `task10_postman.json` — admin analytics endpoints + dashboard page
+- `task11_postman.json` — RBAC + chat + secured analytics flows
 
 ## Submission (screenshots)
 

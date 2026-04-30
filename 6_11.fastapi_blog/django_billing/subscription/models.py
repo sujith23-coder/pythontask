@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class BlogUser(models.Model):
@@ -39,3 +40,32 @@ class BillingHistory(models.Model):
 
     def __str__(self):
         return f"Billing #{self.id} — {self.user_id}"
+
+
+class APIKey(models.Model):
+    user = models.ForeignKey(BlogUser, on_delete=models.CASCADE, related_name="api_keys")
+    key = models.CharField(max_length=128, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"APIKey<{self.user_id}>"
+
+
+class APIUsage(models.Model):
+    user = models.ForeignKey(BlogUser, on_delete=models.CASCADE, related_name="api_usage_records")
+    endpoint = models.CharField(max_length=255)
+    total_requests = models.PositiveIntegerField(default=0)
+    last_used = models.DateTimeField(auto_now=True)
+    usage_date = models.DateField(default=timezone.localdate)
+
+    class Meta:
+        ordering = ["-last_used"]
+        constraints = [
+            models.UniqueConstraint(fields=["user", "endpoint", "usage_date"], name="uq_usage_user_endpoint_day"),
+        ]
+
+    def __str__(self):
+        return f"Usage<{self.user_id}:{self.endpoint}:{self.usage_date}>"

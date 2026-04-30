@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "Task 11 - Full Stack (RBAC + Chat + Analytics)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "admin_username", "value": "task11_admin" },
+    { "key": "admin_email", "value": "task11_admin@example.com" },
+    { "key": "viewer_username", "value": "task11_viewer" },
+    { "key": "viewer_email", "value": "task11_viewer@example.com" },
+    { "key": "password", "value": "password123" },
+    { "key": "admin_token", "value": "" },
+    { "key": "viewer_token", "value": "" },
+    { "key": "admin_api_key", "value": "" },
+    { "key": "viewer_api_key", "value": "" },
+    { "key": "viewer_user_id", "value": "2" }
+  ],
+  "item": [
+    {
+      "name": "Auth setup",
+      "item": [
+        {
+          "name": "Register admin (first user)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{admin_username}}\",\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{password}}\"\n}" },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Register viewer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.id) pm.collectionVariables.set('viewer_user_id', data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{viewer_username}}\",\n  \"email\": \"{{viewer_email}}\",\n  \"password\": \"{{password}}\"\n}" },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Login admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.access_token) pm.collectionVariables.set('admin_token', data.access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "body": { "mode": "urlencoded", "urlencoded": [{ "key": "username", "value": "{{admin_username}}" }, { "key": "password", "value": "{{password}}" }] },
+            "url": "{{base_url}}/auth/login"
+          }
+        },
+        {
+          "name": "Login viewer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.access_token) pm.collectionVariables.set('viewer_token', data.access_token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "body": { "mode": "urlencoded", "urlencoded": [{ "key": "username", "value": "{{viewer_username}}" }, { "key": "password", "value": "{{password}}" }] },
+            "url": "{{base_url}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Keys",
+      "item": [
+        {
+          "name": "Generate admin key",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["const d=pm.response.json(); if (d.api_key) pm.collectionVariables.set('admin_api_key', d.api_key);"] }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}" }] },
+            "method": "POST",
+            "url": "{{base_url}}/generate-key/"
+          }
+        },
+        {
+          "name": "Generate viewer key",
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["const d=pm.response.json(); if (d.api_key) pm.collectionVariables.set('viewer_api_key', d.api_key);"] }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{viewer_token}}" }] },
+            "method": "POST",
+            "url": "{{base_url}}/generate-key/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RBAC",
+      "item": [
+        {
+          "name": "Assign Editor role (Admin only)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-API-Key", "value": "{{admin_api_key}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"user_id\": {{viewer_user_id}},\n  \"role\": \"Editor\"\n}" },
+            "url": "{{base_url}}/roles/assign/"
+          }
+        },
+        {
+          "name": "My permissions (viewer/editor)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{viewer_token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{viewer_api_key}}" }],
+            "url": "{{base_url}}/users/permissions/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics (Admin only)",
+      "item": [
+        {
+          "name": "Analytics summary",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{admin_api_key}}" }],
+            "url": "{{base_url}}/analytics/summary/"
+          }
+        },
+        {
+          "name": "Top users",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{admin_api_key}}" }],
+            "url": "{{base_url}}/analytics/top-users/"
+          }
+        },
+        {
+          "name": "Plan distribution",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{admin_api_key}}" }],
+            "url": "{{base_url}}/analytics/plan-distribution/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat API",
+      "item": [
+        {
+          "name": "Public chat history",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{admin_api_key}}" }],
+            "url": "{{base_url}}/chat/history"
+          }
+        },
+        {
+          "name": "Send private message",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{admin_token}}" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-API-Key", "value": "{{admin_api_key}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"receiver_id\": {{viewer_user_id}},\n  \"message\": \"Hello from admin\"\n}" },
+            "url": "{{base_url}}/chat/private"
+          }
+        }
+      ]
+    }
+  ]
+}

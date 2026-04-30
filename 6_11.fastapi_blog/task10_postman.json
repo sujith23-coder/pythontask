@@ -1,0 +1,126 @@
+{
+  "info": {
+    "name": "Task 10 - Admin Analytics Dashboard API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "username", "value": "task10_admin" },
+    { "key": "email", "value": "task10_admin@example.com" },
+    { "key": "password", "value": "password123" },
+    { "key": "token", "value": "" },
+    { "key": "api_key", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth + API key",
+      "item": [
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/register"
+          }
+        },
+        {
+          "name": "Login (save token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.access_token) {",
+                  "  pm.collectionVariables.set('token', data.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "{{username}}" },
+                { "key": "password", "value": "{{password}}" }
+              ]
+            },
+            "url": "{{base_url}}/auth/login"
+          }
+        },
+        {
+          "name": "Generate key (save api_key)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.api_key) {",
+                  "  pm.collectionVariables.set('api_key', data.api_key);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "POST",
+            "url": "{{base_url}}/generate-key/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics API",
+      "item": [
+        {
+          "name": "Summary analytics",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{api_key}}" }],
+            "url": "{{base_url}}/admin/analytics/summary"
+          }
+        },
+        {
+          "name": "Daily usage (last 7 days)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "header": [{ "key": "X-API-Key", "value": "{{api_key}}" }],
+            "url": "{{base_url}}/admin/analytics/usage-daily"
+          }
+        },
+        {
+          "name": "Summary without key (expect 401)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}" }] },
+            "method": "GET",
+            "url": "{{base_url}}/admin/analytics/summary"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Frontend dashboard",
+      "item": [
+        {
+          "name": "Open dashboard page",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/admin/analytics/dashboard"
+          }
+        }
+      ]
+    }
+  ]
+}

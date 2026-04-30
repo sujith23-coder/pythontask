@@ -120,3 +120,96 @@ class SubscribeResponse(BaseModel):
 
 class ActiveSubscriptionResponse(BaseModel):
     billing: BillingHistoryRead
+
+
+class APIKeyResponse(BaseModel):
+    api_key: str
+    created_at: datetime
+    regenerated: bool
+
+
+class APIUsageByEndpoint(BaseModel):
+    endpoint: str
+    total_requests: int
+    last_used: datetime
+
+
+class APIUsageSummaryResponse(BaseModel):
+    total_requests: int
+    daily_requests: int
+    daily_limit: int
+    usage: list[APIUsageByEndpoint]
+
+
+class TopUserAnalytics(BaseModel):
+    user: str
+    requests: int
+
+
+class UsageDailyItem(BaseModel):
+    date: str
+    requests: int
+
+
+class AdminAnalyticsSummaryResponse(BaseModel):
+    total_users: int
+    total_requests: int
+    top_users: list[TopUserAnalytics]
+    plan_distribution: dict[str, int]
+
+
+class AdminUsageDailyResponse(BaseModel):
+    daily_usage: list[UsageDailyItem]
+
+
+class RoleAssignRequest(BaseModel):
+    user_id: int = Field(..., ge=1)
+    role: str = Field(..., min_length=3, max_length=32)
+
+
+class RoleAssignResponse(BaseModel):
+    message: str
+    user_id: int
+    role: str
+
+
+class UserPermissionsResponse(BaseModel):
+    user_id: int
+    username: str
+    roles: list[str]
+    permissions: list[str]
+
+
+class DeleteUserResponse(BaseModel):
+    message: str
+    deleted_user_id: int
+
+
+class ChatMessageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    sender_id: int
+    message: str
+    timestamp: datetime
+
+
+class PrivateMessageCreate(BaseModel):
+    receiver_id: int = Field(..., ge=1)
+    message: str = Field(..., min_length=1, max_length=5000)
+
+
+class PrivateMessageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    sender_id: int
+    receiver_id: int
+    message: str
+    timestamp: datetime
+
+
+class AnalyticsSummaryV2Response(BaseModel):
+    total_users: int
+    total_api_calls: int
+    active_users: int
