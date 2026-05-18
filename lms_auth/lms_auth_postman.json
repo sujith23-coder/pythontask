@@ -1,0 +1,281 @@
+{
+  "info": {
+    "name": "LMS Authentication API",
+    "description": "Google, Facebook, GitHub OAuth2 and OTP login/signup with JWT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "token", "value": "" },
+    { "key": "oauth_state", "value": "" },
+    { "key": "oauth_code", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Google OAuth",
+      "item": [
+        {
+          "name": "Get authorization URL",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/google/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('oauth_state', data.state);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Callback (GET) - paste code from redirect",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/auth/google/callback?code={{oauth_code}}&state={{oauth_state}}",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "google", "callback"],
+              "query": [
+                { "key": "code", "value": "{{oauth_code}}" },
+                { "key": "state", "value": "{{oauth_state}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('token', pm.response.json().access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Callback (POST)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{oauth_code}}\",\n  \"state\": \"{{oauth_state}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/google/callback"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Facebook OAuth",
+      "item": [
+        {
+          "name": "Get authorization URL",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/facebook/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('oauth_state', pm.response.json().state);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Callback (GET)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/auth/facebook/callback?code={{oauth_code}}&state={{oauth_state}}",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "facebook", "callback"],
+              "query": [
+                { "key": "code", "value": "{{oauth_code}}" },
+                { "key": "state", "value": "{{oauth_state}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Callback (POST)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{oauth_code}}\",\n  \"state\": \"{{oauth_state}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/facebook/callback"
+          }
+        }
+      ]
+    },
+    {
+      "name": "GitHub OAuth",
+      "item": [
+        {
+          "name": "Get authorization URL",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/github/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('oauth_state', pm.response.json().state);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Callback (GET)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/auth/github/callback?code={{oauth_code}}&state={{oauth_state}}",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "github", "callback"],
+              "query": [
+                { "key": "code", "value": "{{oauth_code}}" },
+                { "key": "state", "value": "{{oauth_state}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Callback (POST)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{oauth_code}}\",\n  \"state\": \"{{oauth_state}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/github/callback"
+          }
+        }
+      ]
+    },
+    {
+      "name": "OTP",
+      "item": [
+        {
+          "name": "Request OTP (signup)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"student@example.com\",\n  \"purpose\": \"signup\"\n}"
+            },
+            "url": "{{base_url}}/auth/otp/request"
+          }
+        },
+        {
+          "name": "Verify OTP (signup)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"student@example.com\",\n  \"otp\": \"123456\",\n  \"purpose\": \"signup\",\n  \"username\": \"student1\"\n}"
+            },
+            "url": "{{base_url}}/auth/otp/verify"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set('token', pm.response.json().access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Request OTP (login)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"student@example.com\",\n  \"purpose\": \"login\"\n}"
+            },
+            "url": "{{base_url}}/auth/otp/request"
+          }
+        },
+        {
+          "name": "Verify OTP (login)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"student@example.com\",\n  \"otp\": \"123456\",\n  \"purpose\": \"login\"\n}"
+            },
+            "url": "{{base_url}}/auth/otp/verify"
+          }
+        },
+        {
+          "name": "Me (JWT)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "url": "{{base_url}}/auth/otp/me"
+          }
+        },
+        {
+          "name": "Error - Me without token",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/otp/me"
+          }
+        }
+      ]
+    }
+  ]
+}

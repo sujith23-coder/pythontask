@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "LMS Advanced Features",
+    "description": "Attendance, Assignments, Notifications, Analytics",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "django_url", "value": "http://127.0.0.1:8001" },
+    { "key": "faculty_token", "value": "" },
+    { "key": "student_token", "value": "" },
+    { "key": "course_id", "value": "1" },
+    { "key": "student_id", "value": "2" },
+    { "key": "assignment_id", "value": "1" },
+    { "key": "submission_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "Mark attendance",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{faculty_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course_id\": {{course_id}},\n  \"date\": \"2025-10-30\",\n  \"records\": [\n    {\"student_id\": 2, \"status\": \"Present\"},\n    {\"student_id\": 3, \"status\": \"Absent\"}\n  ]\n}"
+            },
+            "url": "{{base_url}}/attendance/mark"
+          }
+        },
+        {
+          "name": "Error - duplicate attendance",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{faculty_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course_id\": {{course_id}},\n  \"date\": \"2025-10-30\",\n  \"records\": [{\"student_id\": 2, \"status\": \"Present\"}]\n}"
+            },
+            "url": "{{base_url}}/attendance/mark"
+          }
+        },
+        {
+          "name": "Get student attendance",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{student_token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{base_url}}/attendance/student/{{student_id}}?course_id={{course_id}}"
+          }
+        },
+        {
+          "name": "Get course attendance",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{faculty_token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{base_url}}/attendance/course/{{course_id}}?from=2025-10-01&to=2025-12-31"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assignments",
+      "item": [
+        {
+          "name": "Create assignment",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{faculty_token}}", "type": "string" }] },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Midterm Project", "type": "text" },
+                { "key": "description", "value": "Build a REST API", "type": "text" },
+                { "key": "deadline", "value": "2026-12-31T23:59:59", "type": "text" },
+                { "key": "course_id", "value": "{{course_id}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/assignments/create"
+          }
+        },
+        {
+          "name": "Submit assignment",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{student_token}}", "type": "string" }] },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "assignment_id", "value": "{{assignment_id}}", "type": "text" },
+                { "key": "student_id", "value": "{{student_id}}", "type": "text" },
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            },
+            "url": "{{base_url}}/assignments/submit"
+          }
+        },
+        {
+          "name": "Error - late submission (set past deadline first)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{student_token}}", "type": "string" }] },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "assignment_id", "value": "999", "type": "text" },
+                { "key": "student_id", "value": "{{student_id}}", "type": "text" },
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            },
+            "url": "{{base_url}}/assignments/submit"
+          }
+        },
+        {
+          "name": "Grade submission",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{faculty_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submission_id\": {{submission_id}},\n  \"grade\": 88.5,\n  \"remarks\": \"Good work\"\n}"
+            },
+            "url": "{{base_url}}/assignments/grade"
+          }
+        },
+        {
+          "name": "List course assignments",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{faculty_token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{base_url}}/assignments/course/{{course_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List notifications",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{student_token}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{base_url}}/notifications/{{student_id}}"
+          }
+        },
+        {
+          "name": "Mark read",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{student_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notification_ids\": [1],\n  \"mark_all\": false\n}"
+            },
+            "url": "{{base_url}}/notifications/mark-read"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics (Django)",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{django_url}}/analytics/dashboard/?course_id={{course_id}}"
+          }
+        },
+        {
+          "name": "Course summary",
+          "request": {
+            "method": "GET",
+            "url": "{{django_url}}/analytics/course-summary/?course_id={{course_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}
